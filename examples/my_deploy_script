@@ -1,0 +1,33 @@
+#! /usr/bin/python
+
+import os.path, sys
+
+# Adjust python path to include deploytool libraries
+libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "lib")
+sys.path.append(libdir)
+
+import deploytool, deploytoolui
+
+class FooDeploymentProfile(deploytool.DeploymentProfile):
+    def __init__(self, **kwargs):
+        self.appName = "Foo"
+        deploytool.DeploymentProfile.__init__(self, **kwargs)
+
+applications = (
+    ('z', {
+        "displayName": "Foo",
+
+        "profiles": [
+            ('p', FooDeploymentProfile(
+                name="Production",
+                hosts=["foobar-prod1"],
+                repositoryPath='https://github.com/openUtility/FooBar.git',
+                revision='origin/develop',
+                remoteUser="jbq",
+                remoteDir="/tmp/FooBar"
+            )),
+        ]
+    }),
+)
+
+deploytoolui.main(applications)
