@@ -130,9 +130,9 @@ class SelectProfileScreen(OptionsWindow):
 
         for (profileKey, profile) in self.application['profiles']:
             if len(profile.hosts) == 0:
-                raise DeploymentFailed("Please define hosts for your deployment profile with key %s" % profileKey)
+                raise deploytool.DeploymentFailed("Please define hosts for your deployment profile with key %s" % profileKey)
             if profile.name is None:
-                raise DeploymentFailed("Please define a name for your deployment profile with key %s" % profileKey)
+                raise deploytool.DeploymentFailed("Please define a name for your deployment profile with key %s" % profileKey)
             hosts = ", ".join(profile.hosts)
             if len(hosts) > maxlen:
                 maxlen = len(hosts)
