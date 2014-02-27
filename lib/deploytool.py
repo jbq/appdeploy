@@ -25,7 +25,7 @@ class UnknownRevision(Exception):
 class ExecuteFailed(DeploymentFailed):
     pass
 
-class DeploymentProfile(object):
+class BaseDeploymentProfile(object):
     def __init__(self, **kw):
         # Initialize optional fields
         self.repositoryPath = None
