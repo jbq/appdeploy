@@ -277,15 +277,15 @@ class BaseDeploymentEngine(object):
         return repo
 
     def unisonDestination(self, host):
+        if not(self.profile.remoteUser):
+            raise DeploymentFailed("remoteUser is not set")
+        if not(self.profile.remoteDir):
+            raise DeploymentFailed("remoteDir is not set")
         return "ssh://%s@%s/%s" % (self.profile.remoteUser, host, self.profile.remoteDir)
 
     def pushToRemoteHosts(self):
         print
         print "Pushing to remote hosts"
-        if not(self.profile.remoteUser):
-            raise DeploymentFailed("remoteUser is not set")
-        if not(self.profile.remoteDir):
-            raise DeploymentFailed("remoteDir is not set")
         for host in self.getHosts():
             print " Pushing to %s" % host
 
@@ -295,10 +295,17 @@ class BaseDeploymentEngine(object):
                     args += self.rsyncArgs(host)
                 else:
                     args = ['unison', '-batch', '-dumbtty', '-silent', '-force', self.workdir]
+
+                    if self.options.verbose:
+                        args += ["-logfile", "/dev/stdout"]
+
                     args += self.unisonOptions(host)
                     args.append(self.workdir)
                     args.append(self.unisonDestination(host))
-                rev = self.bexecute(args)
+                rev = self.bvexecute(args)
+            except OSError, e:
+                if e.errno == 2:
+                    raise DeploymentFailed("useRsync=%s but %s is not installed" % (self.profile.useRsync, args[0]))
             except ExecuteFailed, e:
                 raise DeploymentFailed("Failed to push %s to remote host %s" % (self.profile.appName, host), e)
 
