@@ -34,7 +34,7 @@ class DeploymentProfile(object):
         self.revision = None
         self.dbVersionCheck = None
         self.recipient = None
-        self.useRsync = True
+        self.useRsync = False
         self.selectTag = False
         self.name = None
         self.hosts = []
