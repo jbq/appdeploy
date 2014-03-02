@@ -1,7 +1,8 @@
-DeployTool
-==========
+appdeploy
+=========
 
-Python deployment tool I use and maintain for years
+Application deployment tool I use and maintain for years, to be used in a
+console (uses an ncurses UI)
 
 Usage
 -----
