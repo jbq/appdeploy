@@ -2,16 +2,16 @@
 
 import os.path, sys
 
-# Adjust python path to include deploytool libraries
+# Adjust python path to include appdeploy libraries
 libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "lib")
 sys.path.append(libdir)
 
-import deploytool, deploytoolui
+import appdeploy, appdeploy.ui
 
-class FooDeploymentProfile(deploytool.DeploymentProfile):
+class FooDeploymentProfile(appdeploy.BaseDeploymentProfile):
     def __init__(self, **kwargs):
         self.appName = "Foo"
-        deploytool.DeploymentProfile.__init__(self, **kwargs)
+        appdeploy.BaseDeploymentProfile.__init__(self, **kwargs)
 
 applications = (
     ('z', {
@@ -30,4 +30,4 @@ applications = (
     }),
 )
 
-deploytoolui.main(applications)
+appdeploy.ui.main(applications)

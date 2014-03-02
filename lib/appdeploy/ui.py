@@ -1,4 +1,4 @@
-import curses, time, curses.panel, textwrap, traceback, sys, os, syslog, deploytool, getopt, collections
+import curses, time, curses.panel, textwrap, traceback, sys, os, syslog, appdeploy, getopt, collections
 
 class UserCompleted(Exception):
     pass
@@ -130,9 +130,9 @@ class SelectProfileScreen(OptionsWindow):
 
         for (profileKey, profile) in self.application['profiles']:
             if len(profile.hosts) == 0:
-                raise deploytool.DeploymentFailed("Please define hosts for your deployment profile with key %s" % profileKey)
+                raise appdeploy.DeploymentFailed("Please define hosts for your deployment profile with key %s" % profileKey)
             if profile.name is None:
-                raise deploytool.DeploymentFailed("Please define a name for your deployment profile with key %s" % profileKey)
+                raise appdeploy.DeploymentFailed("Please define a name for your deployment profile with key %s" % profileKey)
             hosts = ", ".join(profile.hosts)
             if len(hosts) > maxlen:
                 maxlen = len(hosts)
@@ -153,7 +153,7 @@ class SelectProfileScreen(OptionsWindow):
 
 class SelectTagScreen(OptionsWindow):
     def __init__(self, pw, d):
-        assert isinstance(d, deploytool.Deployment)
+        assert isinstance(d, appdeploy.Deployment)
         OptionsWindow.__init__(self, pw)
         self.d = d
 
@@ -278,7 +278,7 @@ class DeploymentUI(UI):
         self.applicationsAsDict = {}
         for applicationKey, applicationInfo in self.applications:
             self.applicationsAsDict[applicationKey] = applicationInfo
-        self.options = deploytool.DeploymentOptions()
+        self.options = appdeploy.DeploymentOptions()
         self.parseOptions()
 
     def display(self, screen):
@@ -306,7 +306,7 @@ class DeploymentUI(UI):
                 if profile[0] == key:
                     selectedProfile = profile[1]
                     break
-            self.deployment = deploytool.getDeployment(selectedProfile, self.options)
+            self.deployment = appdeploy.getDeployment(selectedProfile, self.options)
             raise UserCompleted()
         else:
             self.error("No action defined for option: %s" % key)
@@ -350,7 +350,7 @@ def main(applications):
     d.prepare()
     if d.profile.selectTag:
         if len(d.getAllowedTags()) == 0:
-            raise deploytool.DeploymentFailed("Cannot find any tag matching %s.*" % d.profile.branch)
+            raise appdeploy.DeploymentFailed("Cannot find any tag matching %s.*" % d.profile.branch)
         # Make sure user has seen deployment prepare output()
         print
         raw_input("Press <Enter> to continue ")
@@ -369,7 +369,7 @@ def main(applications):
         print "DEPLOYMENT SUCCESSFUL"
     except SystemExit:
         raise
-    except deploytool.DeploymentFailed, e:
+    except appdeploy.DeploymentFailed, e:
         print
         print "ERROR: %s" % e
         for line in str(e).split("\n"):

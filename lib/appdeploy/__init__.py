@@ -412,7 +412,7 @@ class BaseDeploymentEngine(object):
 
     def getTags(self, pattern):
         # Reverse sort by version number
-        return sorted([x.rstrip() for x in self.bexecute(["git", "tag", "-l", pattern], cwd=self.workdir).split("\n") if x], version_compare, None, True)
+        return sorted([x.rstrip() for x in self.bvexecute(["git", "tag", "-l", pattern], cwd=self.workdir).split("\n") if x], version_compare, None, True)
 
     def reset(self, revision):
         self.bvexecute(["git", "reset", "--hard", revision], cwd=self.workdir)
@@ -427,7 +427,7 @@ class BaseDeploymentEngine(object):
         pass
 
     def unisonOptions(self, host):
-        return []
+        pass
 
 def getDeployment(profile, options):
     deployClass = profile.deploymentEngine
