@@ -276,11 +276,18 @@ class BaseDeploymentEngine(object):
             return repo
         return repo
 
-    def unisonDestination(self, host):
+    def getSource(self, host):
+        return "%s/" % self.workdir
+
+    def getDestination(self, host):
         if not(self.profile.remoteUser):
             raise DeploymentFailed("remoteUser is not set")
         if not(self.profile.remoteDir):
             raise DeploymentFailed("remoteDir is not set")
+
+        if self.useRsync:
+            return "%s@%s:%s" % (self.profile.remoteUser, host, self.profile.remoteDir)
+
         return "ssh://%s@%s/%s" % (self.profile.remoteUser, host, self.profile.remoteDir)
 
     def pushToRemoteHosts(self):
@@ -293,15 +300,14 @@ class BaseDeploymentEngine(object):
                 if self.profile.useRsync:
                     args = ['rsync']
                     args += self.rsyncArgs(host)
+                    args += self.rsyncOptions(host)
                 else:
-                    args = ['unison', '-batch', '-dumbtty', '-silent', '-force', self.workdir]
-
-                    if self.options.verbose:
-                        args += ["-logfile", "/dev/stdout"]
-
+                    args = ['unison']
+                    args += self.unisonArgs(host)
                     args += self.unisonOptions(host)
-                    args.append(self.workdir)
-                    args.append(self.unisonDestination(host))
+
+                args.append(self.getSource(host))
+                args.append(self.getDestination(host))
                 rev = self.bvexecute(args)
             except OSError, e:
                 if e.errno == 2:
@@ -316,7 +322,28 @@ class BaseDeploymentEngine(object):
                 raise DeploymentFailed("Failed to run %s after-push hook on remote host %s" % (self.profile.appName, host), e)
 
     def rsyncArgs(self, host):
-        return ['-rtlz', '--delete', "%s/" % self.workdir, "%s@%s:%s" % (self.profile.remoteUser, host, self.profile.remoteDir)]
+        args = []
+
+        if self.options.verbose:
+            args.append("-i")
+
+        args += ['-rclz', '--delete']
+
+        return args
+
+    def unisonArgs(self, host):
+        args = []
+
+        if self.options.verbose:
+            args += ["-logfile", "/dev/stdout"]
+
+        args += ['-batch', '-dumbtty', '-silent', '-force', self.getSource(host)]
+
+        return args
+
+
+    def rsyncOptions(self, host):
+        return []
 
     def fetchCurrentDeployedRevisionSSH(self, host):
         try:
