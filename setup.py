@@ -1,6 +1,6 @@
 from distutils.core import setup
 setup(name='appdeploy',
-      version='1.0',
+      version='1.0.1',
       description="Application deployment tool I use and maintain for years, to be used in a console (uses an ncurses UI)",
       packages=['appdeploy'],
       author='Jean-Baptiste Quenot',
