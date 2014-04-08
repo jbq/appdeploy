@@ -261,9 +261,8 @@ class BaseDeploymentEngine(object):
 
     def writeChangeLog(self):
         c = self.bexecute(["git", "log", "%s..%s" % (self.oldRevision, self.newRevision)], cwd=self.workdir)
-        f = open("%s/changelog.txt" % self.workdir, "w")
-        f.write(c)
-        f.close()
+        with open("%s/changelog.txt" % self.workdir, "w") as f:
+            f.write(c)
 
     def pickRepo(self):
         """Pick the most relevant Git repository, depending on the availability of the requested repository on the local filesystem.
@@ -290,6 +289,18 @@ class BaseDeploymentEngine(object):
 
         return "ssh://%s@%s/%s" % (self.profile.remoteUser, host, self.profile.remoteDir)
 
+    def getSyncCommandLine(self, host):
+        if self.profile.useRsync:
+            args = ['rsync']
+            args += self.rsyncArgs(host)
+            args += self.rsyncOptions(host)
+        else:
+            args = ['unison']
+            args += self.unisonArgs(host)
+            args += self.unisonOptions(host)
+
+        return args
+
     def pushToRemoteHosts(self):
         print
         print "Pushing to remote hosts"
@@ -297,18 +308,10 @@ class BaseDeploymentEngine(object):
             print " Pushing to %s" % host
 
             try:
-                if self.profile.useRsync:
-                    args = ['rsync']
-                    args += self.rsyncArgs(host)
-                    args += self.rsyncOptions(host)
-                else:
-                    args = ['unison']
-                    args += self.unisonArgs(host)
-                    args += self.unisonOptions(host)
-
+                args = self.getSyncCommandLine(host)
                 args.append(self.getSource(host))
                 args.append(self.getDestination(host))
-                rev = self.bvexecute(args)
+                self.bvexecute(args)
             except OSError, e:
                 if e.errno == 2:
                     raise DeploymentFailed("useRsync=%s but %s is not installed" % (self.profile.useRsync, args[0]))
