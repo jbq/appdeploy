@@ -144,9 +144,6 @@ class BaseDeploymentEngine(object):
             # Push to target environment
             self.pushToRemoteHosts()
 
-            if self.options.doNotify and (self.profile.recipient or self.options.forceRecipient):
-                self.notify()
-
             self.success = 1
             try:
                 self.onSuccess()
@@ -317,6 +314,9 @@ class BaseDeploymentEngine(object):
                     raise DeploymentFailed("useRsync=%s but %s is not installed" % (self.profile.useRsync, args[0]))
             except ExecuteFailed, e:
                 raise DeploymentFailed("Failed to push %s to remote host %s" % (self.profile.appName, host), e)
+
+        if self.options.doNotify and (self.profile.recipient or self.options.forceRecipient):
+            self.notify()
 
         for host in self.getHosts():
             try:
