@@ -379,7 +379,7 @@ class BaseDeploymentEngine(object):
 
         for host in self.getHosts():
             try:
-                rev = self.fetchDeployedRevision(host)
+                rev = self.fetchDeployedRevision(host).rstrip()
             except UnknownRevision:
                 print " * WARNING * could not get deployed revision from host %s" % host
                 continue
