@@ -302,6 +302,9 @@ class BaseDeploymentEngine(object):
         print
         print "Pushing to remote hosts"
         for host in self.getHosts():
+            # Give a last chance to customize workdir for host
+            self.beforePushHost(host)
+
             print " Pushing to %s" % host
 
             try:
@@ -449,6 +452,10 @@ class BaseDeploymentEngine(object):
         return self.bexecute(["git", "show", "-s", "--pretty=format:%h"], cwd=self.workdir).rstrip()
 
     def beforePush(self):
+        """Called before pushing application to any host"""
+        pass
+
+    def beforePushHost(self, host):
         """Called before pushing application to any host"""
         pass
 
